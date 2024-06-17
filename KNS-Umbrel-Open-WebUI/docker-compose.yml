@@ -14,8 +14,5 @@ services:
     environment:
       - OLLAMA_BASE_URL=
       - OPENAI_API_KEY=
-      ports:
-      # Mapping port 8080 of the host to port 8080 of the container
-      - "8080:8080"
     volumes:
       - ${APP_DATA_DIR}/data/open-webui:/app/data
