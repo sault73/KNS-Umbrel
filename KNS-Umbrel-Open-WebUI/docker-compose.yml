@@ -6,7 +6,6 @@ services:
       APP_HOST: KNS-Umbrel-Open-WebUI_server_1
       APP_PORT: 8080
 
-
   server:
     image: ghcr.io/open-webui/open-webui:git-90503be
     restart: unless-stopped
