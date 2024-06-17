@@ -1,7 +1,7 @@
 manifestVersion: 1
-id: KNS-Umbrel-uptime-kuma
-name: Uptime Kuma
-category: Networking
+id: KNS-Umbrel-Open-WebUI
+name: OpenWebUI
+category: AI
 version: "0.0.4"
 tagline: Self-hosted uptime monitoring tool
 icon: https://github.com/sault73/KNS-Umbrel/blob/master/KNS-Umbrel-Open-WebUI/logo.jpg?raw=true
