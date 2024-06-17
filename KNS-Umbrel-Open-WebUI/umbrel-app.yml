@@ -4,7 +4,7 @@ name: Uptime Kuma
 category: Networking
 version: "0.0.4"
 tagline: Self-hosted uptime monitoring tool
-icon: https://i.imgur.com/NQhUQbR.png
+icon: https://github.com/sault73/KNS-Umbrel/blob/master/KNS-Umbrel-Open-WebUI/logo.jpg?raw=true
 description: >
   Uptime Kuma is a self-hosted monitoring tool like Uptime Robot.
 
