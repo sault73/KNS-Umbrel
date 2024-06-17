@@ -3,7 +3,7 @@ id: KNS-Umbrel-Open-WebUI
 name: OpenWebUI
 category: AI
 version: "0.0.4"
-tagline: Self-hosted uptime monitoring tool
+tagline: Self-hosted AI Chatbot
 icon: https://github.com/sault73/KNS-Umbrel/blob/master/KNS-Umbrel-Open-WebUI/logo.jpg?raw=true
 description: >-
   Add your app's description here.
