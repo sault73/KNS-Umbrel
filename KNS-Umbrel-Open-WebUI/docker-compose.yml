@@ -7,7 +7,7 @@ services:
       APP_PORT: 8080
 
   server:
-    image: ghcr.io/open-webui/open-webui:git-90503be
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
     restart: unless-stopped
     stop_grace_period: 1m
     environment:
