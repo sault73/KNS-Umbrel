@@ -4,12 +4,12 @@ name: SteamLab NVIDIA
 tagline: Monitor OBS streams, record video, and group faces with NVIDIA acceleration
 icon: https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/icon.svg
 category: media
-version: "1.0.0"
+version: "1.0.1"
 port: 28081
 description: >-
   SteamLab is a self-hosted, single-stream OBS dashboard with authenticated live
   playback, manual MP4 recording, and optional face grouping. This package requires
-  Linux x86-64, an NVIDIA GPU, a driver compatible with CUDA 12.6, and NVIDIA
+  Linux x86-64, an NVIDIA GPU, a driver compatible with CUDA 12.4, and NVIDIA
   Container Toolkit configured for Docker. It does not fall back to CPU and is not
   compatible with ARM devices such as Umbrel Home ARM or Raspberry Pi.
 
@@ -41,12 +41,12 @@ gallery:
   - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-dashboard.png
   - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-mobile.png
 releaseNotes: |-
-  Initial NVIDIA-only Umbrel release.
+  Fix NVIDIA container startup on hosts whose drivers support CUDA 12.4 but not 12.6.
 
-  - Authenticated OBS monitoring, live HLS playback, and manual MP4 recording.
-  - Opt-in CUDA face grouping with configurable retention and storage guards.
-  - Umbrel-generated login password and a separate internal service token.
-  - Persistent app data with unprivileged backend and worker services.
+  - Use CUDA 12.4.1 with cuDNN 9.1 on Ubuntu 22.04 for the NVIDIA worker.
+  - Preserve strict CUDA inference warmup and provider checks; no CPU fallback.
+  - Pin backend, web, and CUDA worker images to verified 1.0.1 release digests.
+  - An NVIDIA GPU, compatible host driver, and NVIDIA Container Toolkit remain required.
 path: ""
 deterministicPassword: true
 defaultUsername: ""
