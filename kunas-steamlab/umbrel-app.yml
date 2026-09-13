@@ -4,7 +4,7 @@ name: SteamLab NVIDIA
 tagline: Monitor OBS streams, record video, and group faces with NVIDIA acceleration
 icon: https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/icon.svg
 category: media
-version: "1.0.1"
+version: "1.0.3"
 port: 28081
 description: >-
   SteamLab is a self-hosted, single-stream OBS dashboard with authenticated live
@@ -41,11 +41,13 @@ gallery:
   - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-dashboard.png
   - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-mobile.png
 releaseNotes: |-
-  Fix NVIDIA container startup on hosts whose drivers support CUDA 12.4 but not 12.6.
+  Fix RTSP frame decoding with the NVIDIA worker's packaged FFmpeg 4.4.
 
-  - Use CUDA 12.4.1 with cuDNN 9.1 on Ubuntu 22.04 for the NVIDIA worker.
+  - Detect FFmpeg RTSP options and use the client socket timeout instead of enabling server listen mode.
+  - Verify the packaged FFmpeg timeout option during the CUDA image build.
+  - Retain CUDA 12.4.1 with cuDNN 9.1 on Ubuntu 22.04 for compatible NVIDIA drivers.
   - Preserve strict CUDA inference warmup and provider checks; no CPU fallback.
-  - Pin backend, web, and CUDA worker images to verified 1.0.1 release digests.
+  - Pin backend, web, and CUDA worker images to verified 1.0.3 release digests.
   - An NVIDIA GPU, compatible host driver, and NVIDIA Container Toolkit remain required.
 path: ""
 deterministicPassword: true
