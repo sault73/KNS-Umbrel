@@ -28,6 +28,10 @@ https://github.com/9vibes/KNS-Umbrel
 - **OpenCode Git** (`kunas-opencode-git`)
   OpenCode AI coding agent with Git and GitHub CLI installed inside the container, plus first-run local Ollama config for `qwen3.6:35b`.
 
+- **SteamLab NVIDIA** (`kunas-steamlab`)
+  OBS stream monitoring, manual recording, and opt-in face grouping for x86-64 NVIDIA hosts with CUDA 12.6 support. No CPU fallback.
+  App source: [`9vibes/SteamLab`](https://github.com/9vibes/SteamLab). [Setup and safety notes](kunas-steamlab/README.md).
+
 ## Repository purpose
 
 This repo contains only Umbrel app-store metadata and installable app packages.

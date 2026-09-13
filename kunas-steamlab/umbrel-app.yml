@@ -1,0 +1,85 @@
+manifestVersion: 1
+id: kunas-steamlab
+name: SteamLab NVIDIA
+tagline: Monitor OBS streams, record video, and group faces with NVIDIA acceleration
+icon: https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/icon.svg
+category: media
+version: "1.0.0"
+port: 28081
+description: >-
+  SteamLab is a self-hosted, single-stream OBS dashboard with authenticated live
+  playback, manual MP4 recording, and optional face grouping. This package requires
+  Linux x86-64, an NVIDIA GPU, a driver compatible with CUDA 12.6, and NVIDIA
+  Container Toolkit configured for Docker. It does not fall back to CPU and is not
+  compatible with ARM devices such as Umbrel Home ARM or Raspberry Pi.
+
+
+  Log in with the generated application password shown by Umbrel; no username is
+  required. In Settings, copy the server URL and complete stream key into OBS,
+  including the credentials in the key. Use H.264 video, AAC audio, and a 1-second
+  keyframe interval. The dashboard uses port 28081 and RTMP ingest uses TCP 21935.
+
+
+  RTMP is plaintext and listens on host interfaces for LAN/VPN encoders. Never
+  forward port 21935 through your router or expose it to the public Internet.
+  Use a VPN for remote publishing and HTTPS or a trusted private network for the
+  dashboard. Tor browser access does not provide Tor RTMP ingest.
+
+
+  Face thumbnails and embeddings are sensitive biometric data. Obtain consent
+  before opting in to analysis in the Faces tab. Analysis is disabled initially
+  and after every backend restart. Face groups are not verified identities.
+  Recording is manual and never automatically resumes. Deleting face data does
+  not redact existing recordings, and recordings are never automatically deleted.
+developer: 9vibes
+website: https://github.com/9vibes/SteamLab
+submitter: 9vibes
+submission: https://github.com/9vibes/KNS-Umbrel
+repo: https://github.com/9vibes/SteamLab
+support: https://github.com/9vibes/SteamLab/issues
+gallery:
+  - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-dashboard.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/main/assets/screenshot-mobile.png
+releaseNotes: |-
+  Initial NVIDIA-only Umbrel release.
+
+  - Authenticated OBS monitoring, live HLS playback, and manual MP4 recording.
+  - Opt-in CUDA face grouping with configurable retention and storage guards.
+  - Umbrel-generated login password and a separate internal service token.
+  - Persistent app data with unprivileged backend and worker services.
+path: ""
+deterministicPassword: true
+defaultUsername: ""
+environment:
+  - name: PUBLIC_HOST
+    services: [backend]
+    default: umbrel.local
+    note: Advertised OBS hostname or IPv4 address only, without scheme, port, or path. Uses the device's .local hostname unless overridden here; use a LAN/VPN address if OBS cannot resolve it. This does not change the RTMP bind address.
+  - name: COOKIE_SECURE
+    services: [backend]
+    default: "false"
+    note: Set true only when accessing the dashboard through HTTPS. Secure cookies prevent login over ordinary HTTP.
+  - name: MIN_FREE_GB
+    services: [backend]
+    default: "2"
+    note: Free-space reserve in GiB (0.05 to 1000000). Low space stops recording and pauses analysis; this is not a quota and does not delete recordings.
+  - name: FACE_RETENTION_DAYS
+    services: [backend]
+    default: "7"
+    note: Retain face data for 1 to 365 days. This does not delete or redact video recordings.
+  - name: MAX_FACES
+    services: [backend]
+    default: "2000"
+    note: Maximum stored face groups (1 to 10000).
+  - name: MATCH_THRESHOLD
+    services: [backend]
+    default: "0.5"
+    note: Face-group cosine similarity threshold, greater than 0 and at most 1. Similarity is not an identity verification or a probability.
+  - name: DETECTION_THRESHOLD
+    services: [backend]
+    default: "0.85"
+    note: Face detection confidence threshold, greater than 0 and at most 1.
+  - name: ANALYSIS_FPS
+    services: [backend]
+    default: "2"
+    note: Analysis sampling rate from 0.2 to 10 frames per second. Higher rates increase compute load; analysis still requires opt-in after restart.

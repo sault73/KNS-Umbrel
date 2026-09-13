@@ -1,0 +1,127 @@
+version: "3.7"
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kunas-steamlab_web_1
+      APP_PORT: 80
+      PROXY_AUTH_ADD: "false"
+
+  init:
+    image: ghcr.io/9vibes/steamlab-backend:1.0.0@sha256:c8a3eaf97f78eafa676b50e134cecefb93a4cdd119c6fbb8ac8a83f6c1cb2b2b
+    platform: linux/amd64
+    user: "0:0"
+    command: [python, -m, backend.init_data]
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    network_mode: none
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  backend:
+    image: ghcr.io/9vibes/steamlab-backend:1.0.0@sha256:c8a3eaf97f78eafa676b50e134cecefb93a4cdd119c6fbb8ac8a83f6c1cb2b2b
+    platform: linux/amd64
+    user: "65532:65532"
+    # This process owns FFmpeg and monitoring. Never scale it or enable reload.
+    command: [uvicorn, backend.app:app, --host, 0.0.0.0, --port, "8000", --workers, "1", --no-access-log, --no-proxy-headers]
+    environment:
+      ADMIN_PASSWORD: ${APP_PASSWORD}
+      INTERNAL_TOKEN: ${APP_SEED}
+      PUBLIC_HOST: ${DEVICE_DOMAIN_NAME:-umbrel.local}
+      RTMP_PORT: "21935"
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DATA_DIR: /data
+      MIN_FREE_GB: ${MIN_FREE_GB:-2}
+      FACE_RETENTION_DAYS: ${FACE_RETENTION_DAYS:-7}
+      MAX_FACES: ${MAX_FACES:-2000}
+      MATCH_THRESHOLD: ${MATCH_THRESHOLD:-0.5}
+      DETECTION_THRESHOLD: ${DETECTION_THRESHOLD:-0.85}
+      ANALYSIS_FPS: ${ANALYSIS_FPS:-2}
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).close()"]
+      interval: 15s
+      timeout: 6s
+      retries: 5
+      start_period: 30s
+    networks:
+      private:
+        aliases: [steamlab-backend]
+    init: true
+    stop_grace_period: 60s
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.12.3@sha256:3634a1eed1288b93e8d22ed74694eae96d483fcf676cac5d0c91830ad1b86b3d
+    volumes:
+      # Umbrel renders mediamtx.yml.template and retains templates across updates.
+      - ${APP_DATA_DIR}/mediamtx.yml:/mediamtx.yml:ro
+    ports:
+      - "21935:1935"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [private]
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  web:
+    image: ghcr.io/9vibes/steamlab-web:1.0.0@sha256:0acb57274d0638fdae8664523a8be605294e6304e7cac89fedccb31223e0a519
+    platform: linux/amd64
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [default, private]
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  worker:
+    image: ghcr.io/9vibes/steamlab-worker:1.0.0-cuda@sha256:b054937ed0a528228c79c86d395bc48986de4be8a0475207a0e035aa2fa8c303
+    platform: linux/amd64
+    user: "65532:65532"
+    command: [python, -m, worker.main]
+    runtime: nvidia
+    environment:
+      BACKEND_URL: http://backend:8000
+      INTERNAL_TOKEN: ${APP_SEED}
+      MODEL_DIR: /models
+      INFERENCE_DEVICE: cuda
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      backend:
+        condition: service_healthy
+      mediamtx:
+        condition: service_started
+    networks: [private]
+    init: true
+    stop_grace_period: 30s
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+networks:
+  # Not internal:true: published RTMP must remain reachable by LAN/VPN encoders.
+  private:
+    driver: bridge
