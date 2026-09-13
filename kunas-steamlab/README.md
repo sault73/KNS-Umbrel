@@ -1,20 +1,25 @@
-# SteamLab NVIDIA
+# KUNAS/Labs
 
-NVIDIA-only Umbrel package for [SteamLab](https://github.com/9vibes/SteamLab):
+NVIDIA-only Umbrel package for [KUNAS/Labs](https://github.com/9vibes/SteamLab):
 single-stream OBS monitoring, authenticated live playback, manual MP4 recording,
-and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.0.0`.
+and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.0.4`.
+
+Previously named SteamLab NVIDIA. Update the existing app; do not uninstall it.
+Version 1.0.4 changes branding and recording download names while preserving the
+tested CUDA and RTSP fixes from 1.0.3. Installation identifiers, data, credentials,
+and ports are unchanged. Stop recording before updating and re-enable analysis afterward.
 
 ## Requirements
 
 - Linux x86-64 (`linux/amd64`) with an NVIDIA GPU.
-- An NVIDIA driver compatible with CUDA 12.6 and NVIDIA Container Toolkit configured for Docker's `nvidia` runtime.
+- An NVIDIA driver compatible with CUDA 12.4 and NVIDIA Container Toolkit configured for Docker's `nvidia` runtime.
 - One GPU is reserved for the worker. CUDA embedding inference must initialize successfully; there is no CPU fallback. Face detection itself runs on CPU.
 - ARM devices, including Umbrel Home ARM and Raspberry Pi, are not supported by this package.
 - Sufficient storage for recordings and sensitive face data. The default 2 GiB free-space reserve is a safety guard, not a storage quota.
 
 ## First Launch
 
-1. Add `https://github.com/9vibes/KNS-Umbrel` as a community app store in Umbrel and install **SteamLab NVIDIA**.
+1. Add `https://github.com/9vibes/KNS-Umbrel` as a community app store in Umbrel and install **KUNAS/Labs**.
 2. Open the app from Umbrel on web port **28081**. Log in with the generated application password shown by Umbrel; no username is required.
 3. In Settings, copy the server URL and **complete stream key** into OBS. The server URL is `rtmp://<device-hostname>:21935/live`. Preserve the entire `stream?user=publisher&pass=...` key, not just `stream`.
 4. Configure OBS for **H.264 video, AAC audio, and a 1-second keyframe interval**. Video is not transcoded.
@@ -37,7 +42,7 @@ HTTPS or a trusted private network for dashboard access. Tor browser access
 does not make RTMP available through Tor.
 
 Umbrel's app proxy sends web traffic to `kunas-steamlab_web_1:80`; no web port is
-published directly by this Compose package. SteamLab handles login itself, so
+published directly by this Compose package. KUNAS/Labs handles login itself, so
 the proxy's additional authentication is disabled. Set `COOKIE_SECURE=true` only
 when the browser uses HTTPS; leave it `false` for local HTTP.
 
@@ -50,7 +55,7 @@ Do not attach untrusted containers to it: MediaMTX's API trusts network membersh
 Umbrel supplies `APP_PASSWORD` as the administrator password and the separately
 derived, app-specific `APP_SEED` as the backend/worker `INTERNAL_TOKEN`. Both are
 64-character values. No exports script, hardcoded password, or secret files are
-needed. SteamLab independently generates its publishing key and persists it in
+needed. KUNAS/Labs independently generates its publishing key and persists it in
 SQLite. Do not share expanded Compose output, container environments, stream
 keys, or diagnostic logs that might contain credentials.
 
@@ -93,13 +98,13 @@ keep SQLite and files consistent, and protect backups as sensitive data.
 
 ## Packaging
 
-- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.0.0`, `ghcr.io/9vibes/steamlab-backend:1.0.0` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.0.0-cuda`.
+- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.0.4`, `ghcr.io/9vibes/steamlab-backend:1.0.4` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.0.4-cuda`.
 - Media server: `bluenviron/mediamtx:1.12.3`.
 - nginx configuration is included in the web image; no host nginx configuration is required.
 - Umbrel generates `${APP_DATA_DIR}/mediamtx.yml` from `mediamtx.yml.template`, which is retained by Umbrel's app-update whitelist. The generated configuration is mounted read-only.
 - Images are pinned to immutable release digests. All layers of the three custom images were downloaded anonymously and checksum-verified before publication. A public source repository alone does not make GHCR packages public.
 - The icon and gallery screenshots are publicly available in `9vibes/SteamLab`. Screenshots use synthetic API fixtures and contain no personal footage or real credentials.
-- The release workflow passed 97 backend/worker tests (including native CPU model parity), 10 browser tests, and all image builds. Docker Compose configuration validation passed. Installation on an actual Umbrel/NVIDIA host and actual CUDA inference still require a host smoke test.
+- Release checks cover backend/worker tests on Python 3.10 and 3.12 (including native CPU model parity), browser tests, and all image builds. Docker Compose configuration and anonymous registry access are checked before publication. Installation on an actual Umbrel/NVIDIA host and actual CUDA inference still require a host smoke test.
 
 See the upstream [Umbrel guide](https://github.com/9vibes/SteamLab/blob/main/docs/UMBREL.md)
 for deployment details. CPU Compose support is available upstream for non-Umbrel
