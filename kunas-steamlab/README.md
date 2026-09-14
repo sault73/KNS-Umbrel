@@ -2,7 +2,13 @@
 
 NVIDIA-only Umbrel package for [KUNAS/Labs](https://github.com/9vibes/SteamLab):
 OBS monitoring, authenticated live playback, MP4 recording,
-and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.2.0`.
+and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.2.1`.
+
+Version 1.2.1 moves **Signal Directory** into a compact sidebar tab. Its drawer is
+closed by default and contains stream selection, Add/Rename/Archive, and archived
+history. Selecting a stream closes the drawer; Escape or Close restores sidebar
+focus. Mobile uses a compact entry above the workspace. Players, recording, and
+analysis continue independently while opening or closing the directory.
 
 Previously named SteamLab NVIDIA. Update the existing app; do not uninstall it.
 Version 1.2.0 adds Multi-view and default-on automatic recording, retaining 1.1.0's
@@ -23,7 +29,7 @@ only if wanted.
 
 ## Multistream
 
-Four-stream support was introduced in 1.1.0. Deploy the **complete 1.2.0 update** with matching
+Four-stream support was introduced in 1.1.0. Deploy the **complete 1.2.1 update** with matching
 backend, frontend, worker, and MediaMTX configuration
 atomically, including this package's MediaMTX template. Do not combine the new
 configuration with older images. No extra ingest port, container, or app ID change:
@@ -227,17 +233,18 @@ keep SQLite and files consistent, and protect backups as sensitive data.
 
 ## Packaging
 
-The [1.2.0 release workflow](https://github.com/9vibes/SteamLab/actions/runs/34797349505)
-passed on both supported Python versions and published all image variants. The
-three custom images used here were downloaded anonymously and SHA256-verified.
+The [1.2.1 release workflow](https://github.com/9vibes/SteamLab/actions/runs/34802529083)
+passed on Python 3.10 and 3.12, including native model checks and 41 browser tests,
+and built all image variants. Every layer of the web, backend, and CUDA worker
+images was downloaded anonymously and SHA256-verified before publication.
 
-- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.2.0`, `ghcr.io/9vibes/steamlab-backend:1.2.0` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.2.0-cuda`.
+- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.2.1`, `ghcr.io/9vibes/steamlab-backend:1.2.1` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.2.1-cuda`.
 - Media server: `bluenviron/mediamtx:1.12.3`.
 - nginx configuration is included in the web image; no host nginx configuration is required.
 - Umbrel generates `${APP_DATA_DIR}/mediamtx.yml` from `mediamtx.yml.template`, which is retained by Umbrel's app-update whitelist. The generated configuration is mounted read-only.
 - Images are pinned to immutable release digests. Anonymous pulls and every layer checksum were verified for all three custom images before publication. A public source repository alone does not make GHCR packages public.
 - The icon and gallery screenshots are publicly available in `9vibes/SteamLab`. Screenshots use synthetic API fixtures and contain no personal footage or real credentials.
-- The 1.2.0 release CI passed backend/worker tests on Python 3.10 and 3.12 (including native CPU model parity), 34 browser tests, and all image builds. Compose configuration and anonymous registry access were validated. Installation on an actual Umbrel/NVIDIA host and actual CUDA inference still require a host smoke test.
+- Release CI covers backend/worker tests on Python 3.10 and 3.12 (including native CPU model parity), browser tests, and all image builds. Compose configuration and anonymous registry access are verified before publication. Installation on an actual Umbrel/NVIDIA host and actual CUDA inference still require a host smoke test.
 
 See the upstream [Umbrel guide](https://github.com/9vibes/SteamLab/blob/main/docs/UMBREL.md)
 for deployment details. CPU Compose support is available upstream for non-Umbrel
