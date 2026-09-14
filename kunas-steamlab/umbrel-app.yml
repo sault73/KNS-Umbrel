@@ -2,9 +2,9 @@ manifestVersion: 1
 id: kunas-steamlab
 name: KUNAS/Labs
 tagline: Watch four live feeds in multi-view with automatic recording
-icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.1/assets/icon.svg
+icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.2/assets/icon.svg
 category: media
-version: "1.2.1"
+version: "1.2.2"
 port: 28081
 description: >-
   KUNAS/Labs is a self-hosted OBS dashboard with authenticated live
@@ -18,7 +18,7 @@ description: >-
   recordings, face data, credentials, and stream settings; no reinstall is needed.
 
 
-  Version 1.2.1 supports up to four active feeds with matching backend, frontend,
+  Version 1.2.2 supports up to four active feeds with matching backend, frontend,
   worker, and MediaMTX configuration delivered together. Existing streams, keys,
   recordings, face catalogs, ports, and the app ID remain unchanged. No additional
   database migration beyond the four-stream schema introduced in 1.1.0 is required.
@@ -49,11 +49,10 @@ description: >-
 
   Multi-view shows only connected, non-archived feeds in a
   2x2 desktop grid or one mobile column. Each named video has recording controls
-  and telemetry plus independent Faces, Recordings, and Settings tabs below it.
-  Players start muted. Signal Directory opens from a compact left sidebar tab and
-  stays closed by default, freeing space above the video grid. Its drawer contains
-  stream selection, Add/Rename/Archive, and archived history. Mobile uses a compact
-  entry above the workspace. Escape or Close restores focus to the sidebar;
+  and telemetry plus independent Faces, Signal Directory, Recordings, and Settings
+  tabs below it. Players start muted. Signal Directory is an inline tab immediately
+  beside Faces; the sidebar and drawer are removed. Each panel keeps its own
+  management target while sharing the directory list and Add/Rename/Archive forms;
   use Single view for offline settings/history. Selecting archived history switches
   to Single view. Empty Multi-view offers connection guidance. View/tab changes
   never start or stop recording or analysis and do not affect server feeds.
@@ -114,17 +113,18 @@ submission: https://github.com/9vibes/KNS-Umbrel
 repo: https://github.com/9vibes/SteamLab
 support: https://github.com/9vibes/SteamLab/issues
 gallery:
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.1/assets/screenshot-multiview.png
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.1/assets/screenshot-dashboard.png
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.1/assets/screenshot-multiview-mobile.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.2/assets/screenshot-multiview.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.2/assets/screenshot-dashboard.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.2/assets/screenshot-multiview-mobile.png
 releaseNotes: |-
-  KUNAS/Labs 1.2.1: Signal Directory in the sidebar.
+  KUNAS/Labs 1.2.2: Signal Directory beside Faces.
 
-  - Move the large Signal Directory box into a closed-by-default sidebar drawer.
-  - Keep more space above the video grid in Single view and Multi-view.
-  - Retain stream selection, Add/Rename/Archive, and archived-history access.
-  - Add responsive drawer layout, keyboard access, Escape, and focus restoration.
-  - Opening or closing the directory does not restart players or change recording/analysis.
+  - New tab order: Faces, Signal Directory, Recordings, Settings.
+  - Remove the sidebar and drawer, restoring full workspace width.
+  - Keep independent management targets in each multi-view panel with one shared directory poll.
+  - Retain stream selection, Add/Rename/Archive, and direct archived-history navigation.
+  - Preserve keyboard tab navigation, unique control IDs, and management-form focus restoration.
+  - Tab changes do not restart players or change recording/analysis.
   - Update screenshots; preserve existing stream keys, recordings, data, and ports.
 
   Automatic recording remains enabled by default as in 1.2.0, including for
@@ -132,7 +132,7 @@ releaseNotes: |-
   recording. A manual Stop is not a persistent opt-out across backend restarts.
 
   Back up and update the existing app; do not uninstall. Reload the dashboard
-  afterward to see the sidebar. Face analysis remains separately opt-in.
+  afterward to see the new tab order. Face analysis remains separately opt-in.
 path: ""
 deterministicPassword: true
 defaultUsername: ""

@@ -28,10 +28,10 @@ https://github.com/9vibes/KNS-Umbrel
 - **OpenCode Git** (`kunas-opencode-git`)
   OpenCode AI coding agent with Git and GitHub CLI installed inside the container, plus first-run local Ollama config for `qwen3.6:35b`.
 
-- **KUNAS/Labs 1.2.1** (`kunas-steamlab`)
+- **KUNAS/Labs 1.2.2** (`kunas-steamlab`)
   Monitor up to four concurrent OBS feeds with independent keys, recording, bitrate,
   and face catalogs. Requires an x86-64 NVIDIA host with CUDA 12.4 support; no CPU fallback.
-  Signal Directory opens from a closed-by-default sidebar drawer, leaving more room for video.
+  Signal Directory is an inline tab beside Faces in each stream's tool panel; the sidebar is removed.
   Version 1.2.0 adds Multi-view and default-on automatic video recording, preserving
   the 1.1.0 four-stream schema, credentials, history, storage, proxy, ports, and app ID.
   Multi-view shows only connected, non-archived feeds in two desktop columns
