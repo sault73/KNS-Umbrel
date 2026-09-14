@@ -14,7 +14,7 @@ services:
       PROXY_AUTH_ADD: "false"
 
   init:
-    image: ghcr.io/9vibes/steamlab-backend:1.1.0@sha256:839b3602018970e2922615d198b5d3d1dd459a60ef41d32adda78e369d0beb63
+    image: ghcr.io/9vibes/steamlab-backend:1.2.0@sha256:23496f6deff563006185b2025d18c955ef8fa2ab61bc2be0927f495652ef6fe7
     platform: linux/amd64
     user: "0:0"
     command: [python, -m, backend.init_data]
@@ -26,7 +26,7 @@ services:
     logging: *logging
 
   backend:
-    image: ghcr.io/9vibes/steamlab-backend:1.1.0@sha256:839b3602018970e2922615d198b5d3d1dd459a60ef41d32adda78e369d0beb63
+    image: ghcr.io/9vibes/steamlab-backend:1.2.0@sha256:23496f6deff563006185b2025d18c955ef8fa2ab61bc2be0927f495652ef6fe7
     platform: linux/amd64
     user: "65532:65532"
     # This process owns FFmpeg and monitoring. Never scale it or enable reload.
@@ -37,6 +37,7 @@ services:
       PUBLIC_HOST: ${DEVICE_DOMAIN_NAME:-umbrel.local}
       RTMP_PORT: "21935"
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      AUTO_RECORD: ${AUTO_RECORD:-true}
       DATA_DIR: /data
       MIN_FREE_GB: ${MIN_FREE_GB:-2}
       FACE_RETENTION_DAYS: ${FACE_RETENTION_DAYS:-7}
@@ -80,7 +81,7 @@ services:
     logging: *logging
 
   web:
-    image: ghcr.io/9vibes/steamlab-web:1.1.0@sha256:6fdedc3e9478ccaa708a17346102cc281f7d5b1e59656a7552bc05a64ea81e7c
+    image: ghcr.io/9vibes/steamlab-web:1.2.0@sha256:04229809c0aa4623490532371986ce93c5b64ff854eb78ce408399f401d03dbc
     platform: linux/amd64
     depends_on:
       backend:
@@ -91,7 +92,7 @@ services:
     logging: *logging
 
   worker:
-    image: ghcr.io/9vibes/steamlab-worker:1.1.0-cuda@sha256:d5475f837afb0e1ceb22cb91b90ceb2371f0ebefaed6f659c7bb56a4801a5531
+    image: ghcr.io/9vibes/steamlab-worker:1.2.0-cuda@sha256:8cf3f9fda3eabc90093aad61eedd46fcb539e9c9861fc93e1a95e464e2bea2aa
     platform: linux/amd64
     user: "65532:65532"
     command: [python, -m, worker.main]

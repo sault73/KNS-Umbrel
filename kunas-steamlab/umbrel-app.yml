@@ -1,14 +1,14 @@
 manifestVersion: 1
 id: kunas-steamlab
 name: KUNAS/Labs
-tagline: Monitor OBS streams, record video, and group faces with NVIDIA acceleration
-icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/icon.svg
+tagline: Watch four live feeds in multi-view with automatic recording
+icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.0/assets/icon.svg
 category: media
-version: "1.1.0"
+version: "1.2.0"
 port: 28081
 description: >-
   KUNAS/Labs is a self-hosted OBS dashboard with authenticated live
-  playback, manual MP4 recording, and optional face grouping. This package requires
+  playback, MP4 recording, and optional face grouping. This package requires
   Linux x86-64, an NVIDIA GPU, a driver compatible with CUDA 12.4, and NVIDIA
   Container Toolkit configured for Docker. It does not fall back to CPU and is not
   compatible with ARM devices such as Umbrel Home ARM or Raspberry Pi.
@@ -18,11 +18,10 @@ description: >-
   recordings, face data, credentials, and stream settings; no reinstall is needed.
 
 
-  Version 1.1.0 supports up to four active feeds with matching backend, frontend,
-  worker, and MediaMTX configuration delivered together. No additional ingest
-  port, container, or app ID change is required. The existing feed becomes Stream 1
-  with its key preserved. Migration backfills existing face, session, and recording
-  ownership to Stream 1 without moving or overwriting files or replacing its key.
+  Version 1.2.0 supports up to four active feeds with matching backend, frontend,
+  worker, and MediaMTX configuration delivered together. Existing streams, keys,
+  recordings, face catalogs, ports, and the app ID remain unchanged. No additional
+  database migration beyond the four-stream schema introduced in 1.1.0 is required.
 
 
   Add and rename feeds; select a feed to view it and copy its individual OBS key.
@@ -41,6 +40,52 @@ description: >-
   The tested CUDA 12.4.1/cuDNN 9.1 and FFmpeg 4.4 RTSP compatibility are retained.
 
 
+  IMPORTANT: Video recording is now ON BY DEFAULT. Already-live streams start
+  recording after an update or backend restart, even if recording was previously
+  stopped manually. To keep manual-only operation, stop encoders before updating,
+  set AUTO_RECORD=false in the app's environment settings, apply the setting,
+  and only then reconnect encoders. Face analysis remains separately opt-in.
+
+
+  Multi-view shows only connected, non-archived feeds in a
+  2x2 desktop grid or one mobile column. Each named video has recording controls
+  and telemetry plus independent Faces, Recordings, and Settings tabs below it.
+  Players start muted. The directory and stream management stay outside the grid;
+  use Single view for offline settings/history. Selecting archived history switches
+  to Single view. Empty Multi-view offers connection guidance. View/tab changes
+  never start or stop recording or analysis and do not affect server feeds.
+
+
+  The backend defaults to AUTO_RECORD=true; set false in deployment
+  configuration for manual-only recording. Each monitor starts once a feed is
+  confirmed ready, including existing live feeds after backend restart, with the
+  same H.264, disk, and authentication guards as manual Start. No viewer is needed.
+  Stop suppresses the current publisher fingerprint, including while disk-paused
+  without an active recorder, and survives temporary MediaMTX API outages. A genuine
+  reconnect clears suppression and starts a new file after the old one is finalized.
+  The latch is not a persistent opt-out across backend restarts. Explicit Start
+  overrides Stop/failure suppression and retries subject to the guards; it returns
+  an already active recording with HTTP 200 rather than creating a duplicate.
+
+
+  Low disk pauses recording. Automatic recovery requires free space above the
+  shared reserve plus headroom for five continuous seconds unless manually stopped.
+  Headroom is 10% of the reserve, bounded to 16-256 MiB. Spawn failures or unexpected
+  recorder exits latch an error for the same connection until manual Start or a
+  genuine reconnect, preventing repeated attempts and file churn. Reconnects cannot
+  bypass the storage recovery delay. Single view keeps Stop available during a
+  media-server outage when the last publisher can still be suppressed. Start and
+  Stop are idempotent, preventing duplicate recordings from concurrent actions.
+
+
+  Four simultaneous recordings consume storage at the combined rate of all feeds,
+  even without an open dashboard. The shared low-disk reserve is not a quota or a
+  per-feed allowance. Monitor capacity and manage separate storage/quotas and video
+  retention deliberately. Recordings are never automatically deleted, even on low
+  disk. Local verification covered automatic startup without viewers, four concurrent
+  recorders, sticky Stop, reconnects, storage guards, and desktop/mobile layouts.
+
+
   Log in with the generated application password shown by Umbrel; no username is
   required. In Settings, copy the server URL and complete stream key into OBS,
   including the credentials in the key. Use H.264 video, AAC audio, and a 1-second
@@ -56,8 +101,9 @@ description: >-
   Face thumbnails and embeddings are sensitive biometric data. Obtain consent
   before opting in to analysis in the Faces tab. Analysis is disabled initially
   and after every backend restart. Face groups are not verified identities.
-  Recording is manual and never automatically resumes. Deleting face data does
-  not redact existing recordings, and recordings are never automatically deleted.
+  Default-on video recording never enables face
+  analysis or identity recognition. Deleting face data does not redact existing
+  recordings, and face retention does not apply to video recordings.
 developer: 9vibes
 website: https://github.com/9vibes/SteamLab
 submitter: 9vibes
@@ -65,27 +111,37 @@ submission: https://github.com/9vibes/KNS-Umbrel
 repo: https://github.com/9vibes/SteamLab
 support: https://github.com/9vibes/SteamLab/issues
 gallery:
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/screenshot-dashboard.png
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/screenshot-mobile.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.0/assets/screenshot-multiview.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.0/assets/screenshot-dashboard.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.2.0/assets/screenshot-multiview-mobile.png
 releaseNotes: |-
-  KUNAS/Labs 1.1.0: up to four concurrent streams.
+  KUNAS/Labs 1.2.0: Multi-view and automatic recording.
 
-  - Add, rename, select, and archive streams from the dashboard, with four active feeds maximum.
-  - Independent publishing keys, playback, bitrate, recording controls, and face catalogs.
-  - Switching views does not stop other feeds; four streams can record at once.
-  - Existing video, face data, and credentials migrate to Stream 1 without moving recording files or changing its publishing key.
-  - Archived additional streams retain their history and free an active slot.
-  - Shared-engine analysis uses bounded frame buffers and timed, cancellable delivery, with per-stream errors.
-  - Retain CUDA 12.4.1/cuDNN 9.1, FFmpeg 4.4 client-timeout compatibility, and strict CUDA checks.
+  RECORDING DEFAULT CHANGED: AUTO_RECORD=true starts recording connected feeds
+  automatically, including after updates/restarts and without an open dashboard.
 
-  Stop recording and back up the complete stopped app before updating. Update the
-  existing app, do not uninstall it. Reload the dashboard and re-enable analysis
-  for each desired feed afterward. This update migrates the database schema;
-  rolling back requires a matching pre-upgrade data backup, not older images alone.
+  - Two-column Multi-view for up to four connected feeds, with a one-column mobile layout.
+  - Independent Faces, Recordings, and Settings tabs below each video window.
+  - Manual Stop holds for the current publisher connection; a genuine reconnect starts a new file.
+  - Low storage pauses recording; recovery requires headroom and five stable seconds, even across reconnects.
+  - Recording failures are visible and latched to prevent repeated failed files.
+  - Stop remains available during media-server outages in Single view; Start is idempotent.
+  - Existing stream keys, data, ports, and CUDA 12.4/FFmpeg compatibility are preserved.
+
+  Back up the stopped app and update the existing installation; do not uninstall.
+  For manual-only operation, stop encoders before updating, configure/apply
+  AUTO_RECORD=false in app environment settings, then reconnect them. A previous
+  manual Stop does not survive a backend restart. Reload the dashboard after the
+  update and re-enable face analysis separately if desired.
 path: ""
 deterministicPassword: true
 defaultUsername: ""
 environment:
+  - name: AUTO_RECORD
+    services: [backend]
+    default: "true"
+    options: ["true", "false"]
+    note: Automatically record live streams, including after restart. Stop suppresses recording until that publisher reconnects. Set false for manual-only recording.
   - name: PUBLIC_HOST
     services: [backend]
     default: umbrel.local
