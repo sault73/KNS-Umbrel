@@ -2,12 +2,12 @@ manifestVersion: 1
 id: kunas-steamlab
 name: KUNAS/Labs
 tagline: Monitor OBS streams, record video, and group faces with NVIDIA acceleration
-icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.0.4/assets/icon.svg
+icon: https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/icon.svg
 category: media
-version: "1.0.4"
+version: "1.1.0"
 port: 28081
 description: >-
-  KUNAS/Labs is a self-hosted, single-stream OBS dashboard with authenticated live
+  KUNAS/Labs is a self-hosted OBS dashboard with authenticated live
   playback, manual MP4 recording, and optional face grouping. This package requires
   Linux x86-64, an NVIDIA GPU, a driver compatible with CUDA 12.4, and NVIDIA
   Container Toolkit configured for Docker. It does not fall back to CPU and is not
@@ -16,6 +16,29 @@ description: >-
 
   Previously named SteamLab NVIDIA. Update your existing installation to keep
   recordings, face data, credentials, and stream settings; no reinstall is needed.
+
+
+  Version 1.1.0 supports up to four active feeds with matching backend, frontend,
+  worker, and MediaMTX configuration delivered together. No additional ingest
+  port, container, or app ID change is required. The existing feed becomes Stream 1
+  with its key preserved. Migration backfills existing face, session, and recording
+  ownership to Stream 1 without moving or overwriting files or replacing its key.
+
+
+  Add and rename feeds; select a feed to view it and copy its individual OBS key.
+  Selection does not interrupt other server feeds: analysis toggles, recording,
+  bitrate monitoring, and face groups are independent. Archive an additional feed
+  only when offline and not recording, with MediaMTX reachable and confirming no
+  pending publisher. Stream 1 cannot be archived. Archive retains face, session,
+  and recording history and frees an active slot; it disables ingest and analysis,
+  and there is no restore endpoint.
+
+
+  MAX_FACES is a shared total including archived face groups, and all feeds share
+  the low-disk reserve. One initialized NVIDIA engine fairly round-robins bounded
+  latest-frame slots from up to four independent FFmpeg decoders. Achieved analysis
+  FPS depends on hardware and load; the capture target is not a throughput guarantee.
+  The tested CUDA 12.4.1/cuDNN 9.1 and FFmpeg 4.4 RTSP compatibility are retained.
 
 
   Log in with the generated application password shown by Umbrel; no username is
@@ -42,20 +65,23 @@ submission: https://github.com/9vibes/KNS-Umbrel
 repo: https://github.com/9vibes/SteamLab
 support: https://github.com/9vibes/SteamLab/issues
 gallery:
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.0.4/assets/screenshot-dashboard.png
-  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.0.4/assets/screenshot-mobile.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/screenshot-dashboard.png
+  - https://raw.githubusercontent.com/9vibes/SteamLab/v1.1.0/assets/screenshot-mobile.png
 releaseNotes: |-
-  KUNAS/Labs 1.0.4, previously SteamLab NVIDIA.
+  KUNAS/Labs 1.1.0: up to four concurrent streams.
 
-  - New KUNAS/Labs branding across login, dashboard, browser title, icons, and store screenshots.
-  - Downloaded recordings now use the kunas-labs filename prefix; stored files are unchanged.
-  - Keep the existing app ID, ports, passwords, stream key, recordings, and face catalog.
-  - Retain the tested CUDA 12.4.1/cuDNN 9.1 runtime and FFmpeg 4.4 RTSP client-timeout fixes from 1.0.3.
-  - Preserve strict CUDA warmup and provider checks, with no CPU fallback.
-  - Pin all application images to verified 1.0.4 release digests.
+  - Add, rename, select, and archive streams from the dashboard, with four active feeds maximum.
+  - Independent publishing keys, playback, bitrate, recording controls, and face catalogs.
+  - Switching views does not stop other feeds; four streams can record at once.
+  - Existing video, face data, and credentials migrate to Stream 1 without moving recording files or changing its publishing key.
+  - Archived additional streams retain their history and free an active slot.
+  - Shared-engine analysis uses bounded frame buffers and timed, cancellable delivery, with per-stream errors.
+  - Retain CUDA 12.4.1/cuDNN 9.1, FFmpeg 4.4 client-timeout compatibility, and strict CUDA checks.
 
-  Update the existing app rather than reinstalling. Stop recording before updating,
-  reload the dashboard afterward, and re-enable face analysis if required.
+  Stop recording and back up the complete stopped app before updating. Update the
+  existing app, do not uninstall it. Reload the dashboard and re-enable analysis
+  for each desired feed afterward. This update migrates the database schema;
+  rolling back requires a matching pre-upgrade data backup, not older images alone.
 path: ""
 deterministicPassword: true
 defaultUsername: ""
@@ -79,7 +105,7 @@ environment:
   - name: MAX_FACES
     services: [backend]
     default: "2000"
-    note: Maximum stored face groups (1 to 10000).
+    note: Maximum stored face groups across all streams, including archived history (1 to 10000).
   - name: MATCH_THRESHOLD
     services: [backend]
     default: "0.5"
@@ -91,4 +117,4 @@ environment:
   - name: ANALYSIS_FPS
     services: [backend]
     default: "2"
-    note: Analysis sampling rate from 0.2 to 10 frames per second. Higher rates increase compute load; analysis still requires opt-in after restart.
+    note: Per-stream capture target from 0.2 to 10 FPS. Achieved analysis rate depends on hardware and load across all feeds; analysis requires opt-in after restart.

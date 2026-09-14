@@ -1,13 +1,55 @@
 # KUNAS/Labs
 
 NVIDIA-only Umbrel package for [KUNAS/Labs](https://github.com/9vibes/SteamLab):
-single-stream OBS monitoring, authenticated live playback, manual MP4 recording,
-and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.0.4`.
+OBS monitoring, authenticated live playback, manual MP4 recording,
+and opt-in face grouping. App ID: `kunas-steamlab`. Version: `1.1.0`.
 
 Previously named SteamLab NVIDIA. Update the existing app; do not uninstall it.
-Version 1.0.4 changes branding and recording download names while preserving the
-tested CUDA and RTSP fixes from 1.0.3. Installation identifiers, data, credentials,
+Version 1.1.0 adds four independent streams while preserving the tested CUDA and
+RTSP fixes from 1.0.3. Installation identifiers, data, credentials,
 and ports are unchanged. Stop recording before updating and re-enable analysis afterward.
+
+## Multistream
+
+Four-stream support requires the **complete 1.1.0 update**. Deploy matching
+backend, frontend, worker, and MediaMTX configuration
+atomically, including this package's MediaMTX template. Do not combine the new
+configuration with older images. No extra ingest port, container, or app ID change:
+all feeds use the existing `kunas-steamlab` installation and RTMP port 21935.
+
+- A maximum of four active feeds share one administrator. The original feed becomes
+  **Stream 1** (`stream`, path `live/stream`) with its existing publishing key intact.
+  Additional feeds use unique `stream-<32 lowercase UUID hex digits>` IDs, individual
+  keys, and `live/{id}` paths on the same server URL. Select the feed before copying
+  its complete `<id>?user=publisher&pass=...` OBS key.
+- Add and rename feeds; names are trimmed, 1-64 characters, with no control
+  characters. Browser selection does not change server activity. Analysis toggles,
+  recordings, bitrate monitoring, sessions, and face groups are independent per feed.
+- Archive only additional feeds that are offline and not recording, while MediaMTX
+  is reachable and confirms no pending publisher. Stream 1 cannot be archived.
+  Archive retains face/session/recording history and frees an active slot; archived
+  feeds cannot ingest/analyze, IDs are never reused, and no restore endpoint exists.
+  Archived history can still be read/deleted and the feed renamed.
+- `MAX_FACES` is a shared total across all feeds, including archived face groups;
+  `MIN_FREE_GB` is one shared reserve for recording and analysis. One initialized
+  NVIDIA engine fairly round-robins bounded latest-frame slots from up to four
+  independent FFmpeg decoders. Achieved per-feed FPS depends on hardware and load;
+  the configured capture rate is a target, not guaranteed analysis throughput.
+- Migration adds stream ownership to sessions, faces, and recordings and backfills
+  legacy rows to Stream 1. Existing row IDs, files, and the publishing key remain
+  intact; files are not moved or overwritten. Default settings keep their original
+  keys; additional settings use `stream:{id}:{key}`. Back up the stopped app first.
+
+Original scoped REST calls default to Stream 1. The player uses directory-scoped
+`/api/streams/{id}/live/index.m3u8` for relative playlists/segments, while
+`/api/live/{file}` remains a default-stream alias. The worker retains tested
+CUDA 12.4.1/cuDNN 9.1, strict CUDA warmup/provider checks, and FFmpeg 4.4 RTSP option
+detection. See the upstream [API contract](https://github.com/9vibes/SteamLab/blob/main/docs/API.md)
+and [verification results](https://github.com/9vibes/SteamLab/blob/main/docs/VERIFICATION.md).
+
+Back up the complete stopped app before the schema migration. To roll back,
+restore a matching pre-upgrade data backup rather than reverting container images
+alone. This package updates all required components together.
 
 ## Requirements
 
@@ -86,10 +128,10 @@ requiring any recording to be started again manually.
 | `COOKIE_SECURE` | `false` | Use `true` only with HTTPS |
 | `MIN_FREE_GB` | `2` | Free-space reserve in GiB; 0.05 to 1000000 |
 | `FACE_RETENTION_DAYS` | `7` | Face-data retention; 1 to 365 days, not video retention |
-| `MAX_FACES` | `2000` | Stored face-group limit; 1 to 10000 |
+| `MAX_FACES` | `2000` | Application-wide stored face-group limit, including archived feeds; 1 to 10000 |
 | `MATCH_THRESHOLD` | `0.5` | Cosine similarity threshold; greater than 0 and at most 1 |
 | `DETECTION_THRESHOLD` | `0.85` | Detection confidence; greater than 0 and at most 1 |
-| `ANALYSIS_FPS` | `2` | Analysis sampling rate; 0.2 to 10 frames per second |
+| `ANALYSIS_FPS` | `2` | Per-feed capture target; 0.2 to 10 frames per second, achieved analysis FPS hardware-dependent |
 
 Low disk space stops recording and pauses analysis. Analysis can resume when
 space recovers; recording must be started manually. Delete or archive recordings
@@ -98,7 +140,7 @@ keep SQLite and files consistent, and protect backups as sensitive data.
 
 ## Packaging
 
-- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.0.4`, `ghcr.io/9vibes/steamlab-backend:1.0.4` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.0.4-cuda`.
+- Custom amd64 images: `ghcr.io/9vibes/steamlab-web:1.1.0`, `ghcr.io/9vibes/steamlab-backend:1.1.0` (also used for initialization), and `ghcr.io/9vibes/steamlab-worker:1.1.0-cuda`.
 - Media server: `bluenviron/mediamtx:1.12.3`.
 - nginx configuration is included in the web image; no host nginx configuration is required.
 - Umbrel generates `${APP_DATA_DIR}/mediamtx.yml` from `mediamtx.yml.template`, which is retained by Umbrel's app-update whitelist. The generated configuration is mounted read-only.

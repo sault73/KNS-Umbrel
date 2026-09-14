@@ -29,7 +29,9 @@ https://github.com/9vibes/KNS-Umbrel
   OpenCode AI coding agent with Git and GitHub CLI installed inside the container, plus first-run local Ollama config for `qwen3.6:35b`.
 
 - **KUNAS/Labs** (`kunas-steamlab`)
-  OBS stream monitoring, manual recording, and opt-in face grouping for x86-64 NVIDIA hosts with CUDA 12.4 support. No CPU fallback.
+  Monitor up to four concurrent OBS feeds with independent keys, recording, bitrate,
+  and face catalogs. Requires an x86-64 NVIDIA host with CUDA 12.4 support; no CPU fallback.
+  Existing stream credentials and history are preserved during the 1.1.0 upgrade.
   App source: [`9vibes/SteamLab`](https://github.com/9vibes/SteamLab). [Setup and safety notes](kunas-steamlab/README.md).
 
 ## Repository purpose
